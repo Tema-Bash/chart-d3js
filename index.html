@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src="https://d3js.org/d3.v6.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+      <style> 
+         .line {
+            fill: none;
+            stroke: rgb(200, 0, 0);
+            stroke-width: 1px;
+         }
+      </style>
+   </head>
+
+<body>
+    <input type="file" id="files" name="files[]" accept=".txt"/>     
+    <div id="div"></div>
+
+
+    <script>
+    let data1=[];
+    let data2=[];
+    let data3=[];
+    let data4=[];
+    let data5=[];
+    let data6=[];
+    files.addEventListener
+    ('change', async ({target:{files:[file]}}) =>
+    {
+    if(!file) return;
+    const text = await file.text();
+    const numbers = text
+        .trim()
+        .split(/\r?\n/)
+        .map(
+        line => line
+            .trim()
+            .split(/\s+/)
+            .map(Number)
+        );
+
+    data1=numbers[7];
+    data2=numbers[9];
+    data3=numbers[11];
+    data4=numbers[13];
+    data5=numbers[15];
+    data6=numbers[17];
+    let dataset = [data1, data2, data3, data4, data5, data6];
+    
+    let n = 60;
+    let margin = {top: 20,right: 20,bottom: 30,left: 50},
+
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scaleLinear().domain([0, n - 1]).range([0, width]);
+    var y = d3.scaleLinear().domain([-400,700]).range([height, 0]);
+
+    var valueline = d3.line()
+    .x(function(d, i) {
+        return x(i);
+    })
+    .y(function(d, i) {
+        return y(d);
+    });
+
+
+    var svg = d3.select("#div")
+    .selectAll("uniqueChart")
+    .data(dataset)
+    .enter()
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+    svg.append("g")
+    .attr("transform", "translate(0," + y(0) + ")")
+    .call(d3.axisBottom(x));
+
+    svg.append("g")
+    .call(d3.axisLeft(y));
+
+    var path = svg.append("g")
+    .attr("clip-path", "url(#clip)")
+    .append("path")
+    .datum((d) => d)
+    .attr("class", "line")
+    .transition()
+    .duration(16)
+    .ease(d3.easeLinear)
+    .on("start", tick);
+
+
+    function tick(d) {
+
+        d3.select(this)
+            .attr("d", valueline)
+            .attr("transform", null);
+
+        d3.active(this)
+            .attr("transform", "translate(" + x(-1) + ",0)")
+            .transition()
+            .on("start", tick);
+
+        d.shift();
+    }
+
+    }, false);
+
+    </script>
+</body>
+</html>
